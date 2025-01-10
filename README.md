@@ -1,5 +1,6 @@
 # FastAPI Pomodoro and Task Management API
 This project was created during my university class, where I learned FastAPI.
+
 This project is a FastAPI-based application for managing tasks and tracking Pomodoro sessions.
 
 ## Features
