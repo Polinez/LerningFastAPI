@@ -2,6 +2,7 @@ from datetime import timedelta, datetime
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException , status
+
 from Models.Task import Task
 from Models.PomodoroSession import PomodoroSession
 
@@ -21,8 +22,8 @@ tasks = [
 pomodoro_sessions = [
                 {
                 "task_id": 1,
-                "start_time": datetime(2025, 1, 9, 12, 0, 0),
-                "end_time": datetime(2025, 1, 9, 12, 25, 0),
+                "start_time": "2025-01-09T12:00:00",
+                "end_time": "2025-01-09T12:25:00",
                 "completed": True,
                 }
             ]
@@ -43,7 +44,6 @@ def get_active_pomodoro_for_task(task_id: int):
 
 @app.get("/")
 async def hello_message():
-    print("Endpoint '/' został wywołany.")
     return {"message": "Hello, it's my first FastAPI project"}
 
 @app.post("/tasks")
@@ -57,13 +57,17 @@ async def create_task(new_task: Task):
     return new_task
 
 @app.get("/tasks")
-async def get_all_tasks(status: Optional[str] = None):
-    if status:
-        return [task for task in tasks if task["status"] == status]
+async def get_all_tasks(task_status: Optional[str] = None):
+    if task_status:
+        filtered_tasks = [task for task in tasks if task["status"] == task_status]
+        if not filtered_tasks:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task with this status not found")
+        return filtered_tasks
+
     return tasks
 
 @app.get("/tasks/{task_id}")
-async def get_task_by_id(task_id: int):
+async def get_task(task_id: int):
     task = get_task_by_id(task_id)
     if task:
             return task
@@ -107,6 +111,7 @@ async def create_pomodoro_session(task_id: int,pomodoro_session: PomodoroSession
     if pomodoro_session.end_time < pomodoro_session.start_time:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="End time must be greater than start")
 
+    pomodoro_session.task_id = task_id
     pomodoro_sessions.append({"task_id": task_id, "start_time": pomodoro_session.start_time, "end_time": pomodoro_session.end_time, "completed": pomodoro_session.completed})
     return pomodoro_session
 
@@ -129,10 +134,14 @@ async def get_pomodoro_stats():
 
     for session in pomodoro_sessions:
         if session["completed"]:
-            stats[session["task_id"]] = stats.get(session["task_id"], 0) + 1
-            total_time += (session["end_time"] - session["start_time"]).seconds
 
-    return {"stats": stats, "total_time_minutes": total_time // 60}
+            start_time = datetime.fromisoformat(session["start_time"])
+            end_time = datetime.fromisoformat(session["end_time"])
+
+            stats[session["task_id"]] = stats.get(session["task_id"], 0) + 1
+            total_time += (end_time - start_time).seconds
+
+        return {"stats": stats, "total_time_minutes": total_time // 60}
 
 
 
