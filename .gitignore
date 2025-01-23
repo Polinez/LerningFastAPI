@@ -2,3 +2,7 @@
 /.idea
 /__pycache__
 /Models/__pycache__
+*.pyc
+.env
+*.db
+
