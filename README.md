@@ -23,7 +23,7 @@ This project is a FastAPI-based application for managing tasks and tracking Pomo
 ```bash
 pip install -r requirements.txt
 ```
-- Run the application:
+- Run the application: localy
 ```
 fastapi dev main.py
 ```
@@ -31,3 +31,8 @@ or
 ```
 uvicorn main:app --reload
 ```
+or online
+
+https://lerningfastapi.onrender.com/docs
+
+
