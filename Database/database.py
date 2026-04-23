@@ -29,7 +29,7 @@ def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
 
 # creating an dependency for a session to dont create it every time
-sesionDependency = Annotated[Session, Depends(get_session)]
+sessionDependency = Annotated[Session, Depends(get_session)]
 
 
 class DBStorageHandler:
